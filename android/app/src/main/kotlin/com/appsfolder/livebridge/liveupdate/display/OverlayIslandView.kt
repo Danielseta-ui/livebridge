@@ -40,6 +40,8 @@ internal class OverlayIslandView(
     private var lastTapAt = 0L
 
     var onDismissRequested: (() -> Unit)? = null
+    var onNextRequested: (() -> Unit)? = null
+    var onPreviousRequested: (() -> Unit)? = null
 
     private val gestureDetector = GestureDetector(
         context,
@@ -59,9 +61,15 @@ internal class OverlayIslandView(
             ): Boolean {
                 val dx = if (e1 == null) 0f else e2.x - e1.x
                 val dy = if (e1 == null) 0f else e2.y - e1.y
-                val dismissHorizontally = kotlin.math.abs(dx) > dp(48f) && kotlin.math.abs(velocityX) > 800
-                val dismissUp = dy < -dp(24f) && velocityY < -600
-                if (dismissHorizontally || dismissUp) {
+                if (kotlin.math.abs(dx) > kotlin.math.abs(dy) && kotlin.math.abs(velocityX) > 400) {
+                    if (dx < 0) {
+                        onNextRequested?.invoke()
+                    } else {
+                        onPreviousRequested?.invoke()
+                    }
+                    return true
+                }
+                if (dy < -dp(24f) && velocityY < -600) {
                     onDismissRequested?.invoke()
                     return true
                 }
@@ -275,13 +283,8 @@ internal class OverlayIslandView(
         }
         lastTapAt = now
 
-        if (!expanded) {
-            setExpanded(true)
-            return
-        }
-
         val otp = otpCode
-        if (!otp.isNullOrBlank() && otpView.isVisible) {
+        if (!otp.isNullOrBlank() && expanded && otpView.isVisible) {
             copyOtp(otp)
             return
         }
@@ -291,7 +294,7 @@ internal class OverlayIslandView(
             runCatching { intent.send() }
             return
         }
-        setExpanded(false)
+        setExpanded(!expanded)
     }
 
     private fun copyOtp(code: String) {
