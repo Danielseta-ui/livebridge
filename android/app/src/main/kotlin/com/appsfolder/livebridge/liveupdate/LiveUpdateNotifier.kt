@@ -4645,6 +4645,7 @@ object LiveUpdateNotifier {
             notification
         }
         manager.notify(notificationId, posted)
+        Log.i(TAG, "Posted mirror id=$notificationId key=$mirrorKey")
         synchronized(stateLock) {
             pruneProgrammaticMirrorCancelsLocked(SystemClock.elapsedRealtime())
             mirrorKeysByNotificationId[notificationId] = mirrorKey
