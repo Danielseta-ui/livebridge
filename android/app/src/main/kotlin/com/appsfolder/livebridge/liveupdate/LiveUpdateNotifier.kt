@@ -238,7 +238,11 @@ object LiveUpdateNotifier {
     }
 
     private fun mirrorChannelLockscreenVisibility(context: Context): Int {
-        return if (ConverterPrefs(context).getHideLockscreenContentEnabled()) {
+        val prefs = ConverterPrefs(context)
+        if (prefs.getSamsungNowBarEnabled()) {
+            return Notification.VISIBILITY_PUBLIC
+        }
+        return if (prefs.getHideLockscreenContentEnabled()) {
             Notification.VISIBILITY_SECRET
         } else {
             Notification.VISIBILITY_PUBLIC
@@ -262,6 +266,7 @@ object LiveUpdateNotifier {
             programmaticMirrorCancelDeadlines.clear()
         }
         OverlayDisplayController.clear()
+        SamsungNowBarAdapter.release()
     }
 
     fun cancelCallMirrors(context: Context): Int {
@@ -1759,7 +1764,10 @@ object LiveUpdateNotifier {
         val hideLockscreenContent = runtimePrefs.getHideLockscreenContentEnabled()
         val convertedNotificationSound =
             runtimePrefs.getConvertedNotificationSoundEnabled()
+        val samsungNowBarEnabled = runtimePrefs.getSamsungNowBarEnabled()
         val visibility = when {
+            samsungNowBarEnabled -> NotificationCompat.VISIBILITY_PUBLIC
+
             preferMediaControls &&
                     !runtimePrefs.getSmartMediaPlaybackShowOnLockScreen() ->
                 NotificationCompat.VISIBILITY_SECRET
@@ -1772,7 +1780,6 @@ object LiveUpdateNotifier {
         val aospCuttingEnabled = runtimePrefs.getAospCuttingEnabled()
         val aospCuttingLength = runtimePrefs.getAospCuttingLength()
         val hyperBridgeEnabled = runtimePrefs.getHyperBridgeEnabled()
-        val samsungNowBarEnabled = runtimePrefs.getSamsungNowBarEnabled()
         val callChronometerStart = callChronometerStartWallClockMs
             ?.takeIf { callMirrorActive && it > 0L }
             ?.coerceAtMost(System.currentTimeMillis())
@@ -2009,11 +2016,13 @@ object LiveUpdateNotifier {
 
         if (samsungNowBarEnabled) {
             SamsungNowBarAdapter.applyToBuilder(
+                context = context,
                 builder = builder,
                 title = contentTitle,
                 content = contentText,
                 progressPercent = determinateProgressPercent,
-                indeterminate = hasProgress && (indeterminate || progressMax <= 0)
+                indeterminate = hasProgress && (indeterminate || progressMax <= 0),
+                artwork = preferredLargeIcon
             )
         }
 
