@@ -153,6 +153,8 @@ class _SettingsReportBugScreenState extends State<SettingsReportBugScreen> {
         LiveBridgePlatform.getAnimatedIslandUpdateFrequencyMs();
     final Future<bool> hyperBridgeEnabledFuture =
         LiveBridgePlatform.getHyperBridgeEnabled();
+    final Future<bool> samsungNowBarEnabledFuture =
+        LiveBridgePlatform.getSamsungNowBarEnabled();
     final Future<bool> notificationDedupEnabledFuture =
         LiveBridgePlatform.getNotificationDedupEnabled();
     final Future<String> notificationDedupModeFuture =
@@ -266,6 +268,7 @@ class _SettingsReportBugScreenState extends State<SettingsReportBugScreen> {
         'animated_island_update_frequency_ms':
             await animatedIslandFrequencyFuture,
         'hyper_bridge_enabled': await hyperBridgeEnabledFuture,
+        'samsung_now_bar_enabled': await samsungNowBarEnabledFuture,
         'notification_dedup_enabled': await notificationDedupEnabledFuture,
         'notification_dedup_mode': await notificationDedupModeFuture,
         'bug_report_auto_copy_enabled': _autoCopyDebugJson,
