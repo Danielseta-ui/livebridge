@@ -281,6 +281,7 @@ object LiveUpdateNotifier {
         }
         OverlayDisplayController.clear()
         SamsungNowBarAdapter.release()
+        NowBarForegroundService.stop()
     }
 
     fun cancelCallMirrors(context: Context): Int {
@@ -4681,6 +4682,7 @@ object LiveUpdateNotifier {
         if (useSamsungNowBar) {
             SamsungNowBarAdapter.decoratePosted(notification)
             OverlayDisplayController.clear()
+            NowBarForegroundService.publish(context, notificationId, notification)
         }
         manager.notify(notificationId, notification)
         Log.i(TAG, "Posted mirror id=$notificationId key=$mirrorKey nowBar=$useSamsungNowBar")
