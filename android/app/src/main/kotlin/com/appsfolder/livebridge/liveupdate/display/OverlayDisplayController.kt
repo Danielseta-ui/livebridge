@@ -47,6 +47,7 @@ internal object OverlayDisplayController {
     private var windowManager: WindowManager? = null
     private var islandView: OverlayIslandView? = null
     private var windowShown = false
+    private var focusedNotificationId: Int? = null
 
     fun attach(context: Context) {
         attachedContext = context.applicationContext
@@ -93,6 +94,7 @@ internal object OverlayDisplayController {
                 states.remove(oldest.key)
                 userHiddenIds.remove(oldest.key)
             }
+            focusedNotificationId = notificationId
             if (notificationId in userHiddenIds) {
                 return@runOnMain
             }
@@ -117,16 +119,43 @@ internal object OverlayDisplayController {
         runOnMain {
             states.clear()
             userHiddenIds.clear()
+            focusedNotificationId = null
             hideWindow()
         }
     }
 
+    private fun visibleStates(): List<OverlayMirrorState> {
+        return states.values.filter { it.notificationId !in userHiddenIds }
+    }
+
+    private fun focusedState(): OverlayMirrorState? {
+        val visible = visibleStates()
+        if (visible.isEmpty()) {
+            return null
+        }
+        return visible.firstOrNull { it.notificationId == focusedNotificationId } ?: visible.last()
+    }
+
+    private fun cycle(delta: Int) {
+        val context = attachedContext ?: return
+        val visible = visibleStates()
+        if (visible.size < 2) {
+            return
+        }
+        val currentIndex = visible.indexOfFirst { it.notificationId == focusedNotificationId }
+            .takeIf { it >= 0 } ?: (visible.lastIndex)
+        val nextIndex = (currentIndex + delta).mod(visible.size)
+        focusedNotificationId = visible[nextIndex].notificationId
+        renderLocked(context)
+    }
+
     private fun renderLocked(context: Context) {
-        val visible = states.entries.lastOrNull { it.key !in userHiddenIds }?.value
+        val visible = focusedState()
         if (visible == null) {
             hideWindow()
             return
         }
+        focusedNotificationId = visible.notificationId
         if (!canDrawOverlays(context)) {
             Log.w(TAG, "Overlay permission missing; skip window")
             hideWindow()
@@ -140,12 +169,15 @@ internal object OverlayDisplayController {
         windowManager = wm
         val view = islandView ?: OverlayIslandView(context).also { created ->
             created.onDismissRequested = {
-                val hiddenId = states.entries.lastOrNull { it.key !in userHiddenIds }?.key
+                val hiddenId = focusedNotificationId
                 if (hiddenId != null) {
                     userHiddenIds.add(hiddenId)
+                    focusedNotificationId = visibleStates().lastOrNull()?.notificationId
                     renderLocked(context)
                 }
             }
+            created.onNextRequested = { cycle(1) }
+            created.onPreviousRequested = { cycle(-1) }
             islandView = created
         }
         view.bind(state)
