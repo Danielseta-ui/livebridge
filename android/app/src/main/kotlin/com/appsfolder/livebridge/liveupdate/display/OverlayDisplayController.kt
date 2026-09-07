@@ -128,6 +128,7 @@ internal object OverlayDisplayController {
             return
         }
         if (!canDrawOverlays(context)) {
+            Log.w(TAG, "Overlay permission missing; skip window")
             hideWindow()
             return
         }
@@ -155,6 +156,7 @@ internal object OverlayDisplayController {
         try {
             wm.addView(view, overlayLayoutParams(context))
             windowShown = true
+            Log.i(TAG, "Overlay shown for ${state.title}")
         } catch (error: Throwable) {
             Log.w(TAG, "Unable to add overlay window", error)
             windowShown = false
@@ -172,19 +174,21 @@ internal object OverlayDisplayController {
     }
 
     private fun overlayLayoutParams(context: Context): WindowManager.LayoutParams {
-        val topInset = currentTopInset(context)
+        @Suppress("DEPRECATION")
+        val flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
         return WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            flags,
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-            y = topInset + dp(context, 6)
+            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            y = currentBottomInset(context) + dp(context, 20)
             title = "LiveBridge overlay"
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 layoutInDisplayCutoutMode =
@@ -193,16 +197,13 @@ internal object OverlayDisplayController {
         }
     }
 
-    private fun currentTopInset(context: Context): Int {
+    private fun currentBottomInset(context: Context): Int {
         val wm = windowManager ?: context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val insets = wm.currentWindowMetrics.windowInsets
-            val types = android.view.WindowInsets.Type.statusBars() or
-                android.view.WindowInsets.Type.displayCutout()
-            insets.getInsetsIgnoringVisibility(types).top
+            insets.getInsetsIgnoringVisibility(android.view.WindowInsets.Type.navigationBars()).bottom
         } else {
-            @Suppress("DEPRECATION")
-            dp(context, 32)
+            dp(context, 24)
         }
     }
 
