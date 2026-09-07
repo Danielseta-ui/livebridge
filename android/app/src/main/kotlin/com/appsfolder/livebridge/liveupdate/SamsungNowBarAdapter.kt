@@ -4,11 +4,7 @@ import android.app.Notification
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationCompat
-import androidx.media.app.NotificationCompat as MediaNotificationCompat
 
 internal object SamsungNowBarAdapter {
     private const val STYLE = "android.ongoingActivityNoti.style"
@@ -22,10 +18,6 @@ internal object SamsungNowBarAdapter {
     private const val PROGRESS_MAX = "android.ongoingActivityNoti.progressMax"
     private const val CHIP_COLOR = 0xFF7BBDB7.toInt()
     private const val SEM_FLAG_ONGOING_ACTIVITY = 32768
-    private const val SESSION_TAG = "livebridge_nowbar"
-
-    private val sessionLock = Any()
-    private var mediaSession: MediaSessionCompat? = null
 
     fun applyToBuilder(
         context: Context,
@@ -34,56 +26,19 @@ internal object SamsungNowBarAdapter {
         content: String,
         progressPercent: Int?,
         indeterminate: Boolean,
-        artwork: Bitmap? = null
+        @Suppress("UNUSED_PARAMETER") artwork: Bitmap? = null
     ) {
         val payload = extrasBundle(title, content, progressPercent, indeterminate)
         val chip = chipText(title, content, progressPercent)
-        val session = ensureSession(context.applicationContext)
-        session.setMetadata(
-            MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title.ifBlank { chip })
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, content.ifBlank { title })
-                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, title.ifBlank { chip })
-                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, content.ifBlank { title })
-                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, artwork)
-                .build()
-        )
-        session.setPlaybackState(
-            PlaybackStateCompat.Builder()
-                .setState(PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1f)
-                .setActions(PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PAUSE)
-                .build()
-        )
-        session.isActive = true
-
         builder.addExtras(payload)
         builder.setRequestPromotedOngoing(true)
         builder.setShortCriticalText(chip)
         builder.setTicker(chip)
-        builder.setCategory(NotificationCompat.CATEGORY_TRANSPORT)
+        builder.setCategory(NotificationCompat.CATEGORY_NAVIGATION)
         builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-        builder.setStyle(
-            MediaNotificationCompat.MediaStyle().setMediaSession(session.sessionToken)
-        )
     }
 
     fun release() {
-        synchronized(sessionLock) {
-            mediaSession?.isActive = false
-            mediaSession?.release()
-            mediaSession = null
-        }
-    }
-
-    private fun ensureSession(context: Context): MediaSessionCompat {
-        synchronized(sessionLock) {
-            mediaSession?.let { return it }
-            return MediaSessionCompat(context, SESSION_TAG).also { created ->
-                created.setCallback(object : MediaSessionCompat.Callback() {})
-                created.isActive = true
-                mediaSession = created
-            }
-        }
     }
 
     fun decoratePosted(notification: Notification) {
