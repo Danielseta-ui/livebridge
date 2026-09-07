@@ -2262,14 +2262,14 @@ class AppStrings {
   );
 
   String get samsungNowBarDescription => tr(
-    en: 'Samsung only lists Clock, Health, and media in Now Bar. LiveBridge shows chats on a bottom pill instead',
-    ru: 'Samsung показывает в Now Bar только Clock, Health и медиа. Чаты LiveBridge идут нижней плашкой',
-    tr: 'Samsung Now Bar yalnızca Saat, Sağlık ve medyayı listeler. Sohbetler alt pillde gösterilir',
+    en: 'This firmware does not list LiveBridge in Now Bar. WhatsApp and Instagram stay as LiveBridge notifications in the shade',
+    ru: 'Эта прошивка не добавляет LiveBridge в Now Bar. WhatsApp и Instagram остаются уведомлениями LiveBridge',
+    tr: 'Bu yazılım LiveBridge’i Now Bar’a eklemez. WhatsApp ve Instagram gölgede LiveBridge bildirimi olarak kalır',
     ptBr:
-        'A Now Bar da Samsung só lista Relógio, Saúde e mídia. O LiveBridge mostra chats numa pílula inferior',
-    zhHans: '三星 Now Bar 只列出时钟、健康和媒体。LiveBridge 用底部胶囊显示聊天',
-    zhHant: '三星 Now Bar 只列出時鐘、健康與媒體。LiveBridge 用底部膠囊顯示聊天',
-    ko: '삼성 Now Bar에는 시계, 헬스, 미디어만 올라갑니다. 채팅은 하단 필로 표시합니다',
+        'Este firmware não lista o LiveBridge na Now Bar. WhatsApp e Instagram ficam como notificações LiveBridge',
+    zhHans: '此系统不会把 LiveBridge 列入 Now Bar。WhatsApp 和 Instagram 仍显示为 LiveBridge 通知',
+    zhHant: '此系統不會把 LiveBridge 列入 Now Bar。WhatsApp 與 Instagram 仍顯示為 LiveBridge 通知',
+    ko: '이 펌웨어는 LiveBridge를 Now Bar에 넣지 않습니다. WhatsApp과 Instagram은 LiveBridge 알림으로만 남습니다',
   );
 
   String get xiaomiHyperIslandDescription => tr(
