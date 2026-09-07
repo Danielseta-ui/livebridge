@@ -3,10 +3,10 @@ package com.appsfolder.livebridge.liveupdate
 import android.app.Notification
 import android.content.Context
 import android.graphics.Bitmap
-import android.media.MediaMetadata
-import android.media.session.MediaSession
-import android.media.session.PlaybackState
 import android.os.Bundle
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat as MediaNotificationCompat
 
@@ -25,7 +25,7 @@ internal object SamsungNowBarAdapter {
     private const val SESSION_TAG = "livebridge_nowbar"
 
     private val sessionLock = Any()
-    private var mediaSession: MediaSession? = null
+    private var mediaSession: MediaSessionCompat? = null
 
     fun applyToBuilder(
         context: Context,
@@ -40,18 +40,18 @@ internal object SamsungNowBarAdapter {
         val chip = chipText(title, content, progressPercent)
         val session = ensureSession(context.applicationContext)
         session.setMetadata(
-            MediaMetadata.Builder()
-                .putString(MediaMetadata.METADATA_KEY_TITLE, title.ifBlank { chip })
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, content.ifBlank { title })
-                .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, title.ifBlank { chip })
-                .putString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE, content.ifBlank { title })
-                .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, artwork)
+            MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title.ifBlank { chip })
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, content.ifBlank { title })
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, title.ifBlank { chip })
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, content.ifBlank { title })
+                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, artwork)
                 .build()
         )
         session.setPlaybackState(
-            PlaybackState.Builder()
-                .setState(PlaybackState.STATE_PLAYING, PlaybackState.PLAYBACK_POSITION_UNKNOWN, 1f)
-                .setActions(PlaybackState.ACTION_PLAY or PlaybackState.ACTION_PAUSE)
+            PlaybackStateCompat.Builder()
+                .setState(PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1f)
+                .setActions(PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PAUSE)
                 .build()
         )
         session.isActive = true
@@ -75,11 +75,11 @@ internal object SamsungNowBarAdapter {
         }
     }
 
-    private fun ensureSession(context: Context): MediaSession {
+    private fun ensureSession(context: Context): MediaSessionCompat {
         synchronized(sessionLock) {
             mediaSession?.let { return it }
-            return MediaSession(context, SESSION_TAG).also { created ->
-                created.setCallback(object : MediaSession.Callback() {})
+            return MediaSessionCompat(context, SESSION_TAG).also { created ->
+                created.setCallback(object : MediaSessionCompat.Callback() {})
                 created.isActive = true
                 mediaSession = created
             }
