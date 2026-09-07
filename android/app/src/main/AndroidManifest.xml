@@ -66,6 +66,17 @@
         </service>
 
         <service
+            android:name=".liveupdate.NowBarForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse"
+        >
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Holds the current LiveBridge conversion for Samsung Now Bar"
+            />
+        </service>
+
+        <service
             android:name=".liveupdate.networkspeed.NetworkSpeedForegroundService"
             android:exported="false"
             android:foregroundServiceType="dataSync"
