@@ -71,6 +71,20 @@ object LiveUpdateNotifier {
         "com.google.android.dialer",
         "com.google.android.apps.dialer"
     )
+    private val NATIVE_NOW_BAR_MEDIA_PACKAGES = setOf(
+        "com.spotify.music",
+        "com.google.android.youtube",
+        "com.google.android.apps.youtube.music",
+        "com.google.android.apps.youtube.kids",
+        "com.apple.android.music",
+        "com.amazon.mp3",
+        "com.soundcloud.android",
+        "deezer.android.app",
+        "com.pandora.android",
+        "com.aspiro.tidal",
+        "com.sec.android.app.music",
+        "com.samsung.android.app.music.chn"
+    )
     private val DISCORD_PACKAGES = setOf(
         "com.discord",
         "com.discord.alpha",
@@ -328,7 +342,7 @@ object LiveUpdateNotifier {
                 cancelMirrorsForIgnoredSource(manager, sbn)
                 return notMirroredResult()
             }
-            if (isLikelyMediaPlaybackNotification(sbn.notification)) {
+            if (shouldLeaveToSystemNowBar(sbn)) {
                 cancelMirrorsForIgnoredSource(manager, sbn)
                 return notMirroredResult()
             }
@@ -4337,6 +4351,14 @@ object LiveUpdateNotifier {
             .trim()
     }
 
+    private fun shouldLeaveToSystemNowBar(sbn: StatusBarNotification): Boolean {
+        val packageName = sbn.packageName.lowercase(Locale.ROOT)
+        if (packageName in NATIVE_NOW_BAR_MEDIA_PACKAGES) {
+            return true
+        }
+        return isLikelyMediaPlaybackNotification(sbn.notification)
+    }
+
     private fun isLikelyMediaPlaybackNotification(notification: Notification): Boolean {
         if (notification.category == Notification.CATEGORY_TRANSPORT) {
             return true
@@ -4658,6 +4680,7 @@ object LiveUpdateNotifier {
         val useSamsungNowBar = ConverterPrefs(context).getSamsungNowBarEnabled()
         if (useSamsungNowBar) {
             SamsungNowBarAdapter.decoratePosted(notification)
+            OverlayDisplayController.clear()
         }
         manager.notify(notificationId, notification)
         Log.i(TAG, "Posted mirror id=$notificationId key=$mirrorKey nowBar=$useSamsungNowBar")
@@ -4665,12 +4688,14 @@ object LiveUpdateNotifier {
             pruneProgrammaticMirrorCancelsLocked(SystemClock.elapsedRealtime())
             mirrorKeysByNotificationId[notificationId] = mirrorKey
         }
-        OverlayDisplayController.upsert(
-            context = context,
-            notificationId = notificationId,
-            mirrorKey = mirrorKey,
-            notification = notification
-        )
+        if (!useSamsungNowBar) {
+            OverlayDisplayController.upsert(
+                context = context,
+                notificationId = notificationId,
+                mirrorKey = mirrorKey,
+                notification = notification
+            )
+        }
     }
 
     private fun cancelMirroredNotification(
