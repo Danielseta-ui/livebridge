@@ -96,6 +96,10 @@
         />
 
         <meta-data android:name="flutterEmbedding" android:value="2" />
+        <meta-data
+            android:name="com.samsung.android.support.ongoing_activity"
+            android:value="true"
+        />
     </application>
 
     <queries>
