@@ -4681,7 +4681,6 @@ object LiveUpdateNotifier {
         val useSamsungNowBar = ConverterPrefs(context).getSamsungNowBarEnabled()
         if (useSamsungNowBar) {
             SamsungNowBarAdapter.decoratePosted(notification)
-            OverlayDisplayController.clear()
             NowBarForegroundService.publish(context, notificationId, notification)
         }
         manager.notify(notificationId, notification)
@@ -4690,14 +4689,12 @@ object LiveUpdateNotifier {
             pruneProgrammaticMirrorCancelsLocked(SystemClock.elapsedRealtime())
             mirrorKeysByNotificationId[notificationId] = mirrorKey
         }
-        if (!useSamsungNowBar) {
-            OverlayDisplayController.upsert(
-                context = context,
-                notificationId = notificationId,
-                mirrorKey = mirrorKey,
-                notification = notification
-            )
-        }
+        OverlayDisplayController.upsert(
+            context = context,
+            notificationId = notificationId,
+            mirrorKey = mirrorKey,
+            notification = notification
+        )
     }
 
     private fun cancelMirroredNotification(
