@@ -187,6 +187,10 @@ class LiveBridgePlatform {
       _askBool('getHyperBridgeEnabled');
   static Future<bool> setHyperBridgeEnabled(bool value) =>
       _askBool('setHyperBridgeEnabled', {'value': value});
+  static Future<bool> getSamsungNowBarEnabled() =>
+      _askBool('getSamsungNowBarEnabled');
+  static Future<bool> setSamsungNowBarEnabled(bool value) =>
+      _askBool('setSamsungNowBarEnabled', {'value': value});
   static Future<bool> getNotificationDedupEnabled() =>
       _askBool('getNotificationDedupEnabled');
   static Future<bool> setNotificationDedupEnabled(bool value) =>
