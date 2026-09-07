@@ -28,6 +28,8 @@ internal object SamsungNowBarAdapter {
         builder.addExtras(payload)
         builder.setRequestPromotedOngoing(true)
         builder.setShortCriticalText(chipText(title, content, progressPercent))
+        builder.setCategory(NotificationCompat.CATEGORY_NAVIGATION)
+        builder.setTicker(chipText(title, content, progressPercent))
     }
 
     fun decoratePosted(notification: Notification) {
