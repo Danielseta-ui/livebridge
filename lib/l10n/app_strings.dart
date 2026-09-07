@@ -2262,14 +2262,14 @@ class AppStrings {
   );
 
   String get samsungNowBarDescription => tr(
-    en: 'sends converted notifications to Samsung Live Notifications and Now Bar',
-    ru: 'отправляет конвертированные уведомления в Live Notifications и Now Bar Samsung',
-    tr: 'dönüştürülen bildirimleri Samsung Live Notifications ve Now Bar’a gönderir',
+    en: 'Samsung only lists Clock, Health, and media in Now Bar. LiveBridge shows chats on a bottom pill instead',
+    ru: 'Samsung показывает в Now Bar только Clock, Health и медиа. Чаты LiveBridge идут нижней плашкой',
+    tr: 'Samsung Now Bar yalnızca Saat, Sağlık ve medyayı listeler. Sohbetler alt pillde gösterilir',
     ptBr:
-        'envia notificações convertidas para Live Notifications e Now Bar da Samsung',
-    zhHans: '将转换后的通知发送到三星 Live Notifications 和 Now Bar',
-    zhHant: '將轉換後的通知送到三星 Live Notifications 與 Now Bar',
-    ko: '변환된 알림을 삼성 Live Notifications 및 Now Bar로 보냅니다',
+        'A Now Bar da Samsung só lista Relógio, Saúde e mídia. O LiveBridge mostra chats numa pílula inferior',
+    zhHans: '三星 Now Bar 只列出时钟、健康和媒体。LiveBridge 用底部胶囊显示聊天',
+    zhHant: '三星 Now Bar 只列出時鐘、健康與媒體。LiveBridge 用底部膠囊顯示聊天',
+    ko: '삼성 Now Bar에는 시계, 헬스, 미디어만 올라갑니다. 채팅은 하단 필로 표시합니다',
   );
 
   String get xiaomiHyperIslandDescription => tr(
