@@ -940,23 +940,24 @@ class AppStrings {
   );
 
   String get bypassTitle => tr(
-    en: 'Always convert',
-    ru: 'Всегда конвертировать',
-    tr: 'Her zaman dönüştür',
-    ptBr: 'Sempre converter',
-    zhHans: '始终转换',
-    zhHant: '一律轉換',
-    ko: '항상 변환',
+    en: 'Bypass',
+    ru: 'Bypass',
+    tr: 'Bypass',
+    ptBr: 'Bypass',
+    zhHans: 'Bypass',
+    zhHant: 'Bypass',
+    ko: 'Bypass',
   );
 
   String get bypassDescription => tr(
-    en: 'Converts selected apps even when no rule matches',
-    ru: 'Конвертирует выбранные приложения, даже если правила не совпали',
-    tr: 'Hiçbir kural eşleşmese bile seçili uygulamaları dönüştürür',
-    ptBr: 'Converte os apps selecionados mesmo sem uma regra correspondente',
-    zhHans: '即使没有匹配规则，也转换所选应用的通知',
-    zhHant: '即使沒有符合規則，也轉換所選應用程式的通知',
-    ko: '일치하는 규칙이 없어도 선택한 앱의 알림을 변환합니다',
+    en: 'Always convert selected apps, even without a matching rule, so they can show in Now Bar',
+    ru: 'Всегда конвертирует выбранные приложения, даже без совпадения правил, чтобы они могли попасть в Now Bar',
+    tr: 'Kural eşleşmese bile seçili uygulamaları dönüştürür ve Now Bar’da gösterebilir',
+    ptBr:
+        'Sempre converte os apps selecionados, mesmo sem uma regra correspondente, para aparecerem na Now Bar',
+    zhHans: '即使没有匹配规则也转换所选应用，以便显示在 Now Bar',
+    zhHant: '即使沒有符合規則也轉換所選應用，以便顯示在 Now Bar',
+    ko: '규칙이 없어도 선택한 앱을 변환해 Now Bar에 표시할 수 있게 합니다',
   );
 
   String get perAppSettingsTitle => tr(
@@ -1237,6 +1238,16 @@ class AppStrings {
     zhHans: '日志大小',
     zhHant: '記錄大小',
     ko: '로그 크가',
+  );
+
+  String get samsungNowBarTitle => tr(
+    en: 'Samsung Now Bar',
+    ru: 'Samsung Now Bar',
+    tr: 'Samsung Now Bar',
+    ptBr: 'Samsung Now Bar',
+    zhHans: '三星 Now Bar',
+    zhHant: '三星 Now Bar',
+    ko: '삼성 Now Bar',
   );
 
   String get xiaomiHyperIslandTitle => tr(
@@ -2248,6 +2259,17 @@ class AppStrings {
     zhHans: '当网速低于此阈值时隐藏网络速度 Live Update',
     zhHant: '當網速低於此門檻時隱藏網路速度 Live Update',
     ko: '네트워크 속도 제한이 기준치 미만이면 숨깁니다.',
+  );
+
+  String get samsungNowBarDescription => tr(
+    en: 'sends converted notifications to Samsung Live Notifications and Now Bar',
+    ru: 'отправляет конвертированные уведомления в Live Notifications и Now Bar Samsung',
+    tr: 'dönüştürülen bildirimleri Samsung Live Notifications ve Now Bar’a gönderir',
+    ptBr:
+        'envia notificações convertidas para Live Notifications e Now Bar da Samsung',
+    zhHans: '将转换后的通知发送到三星 Live Notifications 和 Now Bar',
+    zhHant: '將轉換後的通知送到三星 Live Notifications 與 Now Bar',
+    ko: '변환된 알림을 삼성 Live Notifications 및 Now Bar로 보냅니다',
   );
 
   String get xiaomiHyperIslandDescription => tr(
