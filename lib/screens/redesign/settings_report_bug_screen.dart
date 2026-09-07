@@ -87,6 +87,10 @@ class _SettingsReportBugScreenState extends State<SettingsReportBugScreen> {
         LiveBridgePlatform.isNotificationPermissionGranted();
     final Future<bool> canPostPromotedFuture =
         LiveBridgePlatform.canPostPromotedNotifications();
+    final Future<bool> requiresOverlayDisplayFuture =
+        LiveBridgePlatform.requiresOverlayDisplay();
+    final Future<bool> canDrawOverlaysFuture =
+        LiveBridgePlatform.canDrawOverlays();
     final Future<bool> converterEnabledFuture =
         LiveBridgePlatform.getConverterEnabled();
     final Future<bool> keepAliveFuture =
@@ -220,6 +224,8 @@ class _SettingsReportBugScreenState extends State<SettingsReportBugScreen> {
         'listener_enabled': await listenerEnabledFuture,
         'notifications_granted': await notificationsGrantedFuture,
         'can_post_promoted': await canPostPromotedFuture,
+        'requires_overlay_display': await requiresOverlayDisplayFuture,
+        'can_draw_overlays': await canDrawOverlaysFuture,
       },
       'settings': <String, dynamic>{
         'converter_enabled': await converterEnabledFuture,

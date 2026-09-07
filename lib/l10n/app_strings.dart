@@ -117,6 +117,17 @@ class AppStrings {
     ko: '기기의 Live Updates 설정을 열 수 없습니다.',
   );
 
+  String get overlayUnavailable => tr(
+    en: 'Unable to open overlay permission settings on this device.',
+    ru: 'Не удалось открыть настройки отображения поверх окон.',
+    tr: 'Bu cihazda overlay izin ayarları açılamıyor.',
+    ptBr:
+        'Não foi possível abrir as configurações de sobreposição neste dispositivo.',
+    zhHans: '此设备无法打开悬浮窗权限设置。',
+    zhHant: '此裝置無法開啟懸浮窗權限設定。',
+    ko: '기기의 다른 앱 위에 표시 설정을 열 수 없습니다.',
+  );
+
   String get githubOpenFailed => tr(
     en: 'Unable to open GitHub link.',
     ru: 'Не удалось открыть ссылку GitHub.',
@@ -1610,6 +1621,16 @@ class AppStrings {
     zhHans: 'Live Updates 推送权限',
     zhHant: 'Live Updates 推送權限',
     ko: 'Live Updates 권한',
+  );
+
+  String get overlayAccess => tr(
+    en: 'Display over other apps',
+    ru: 'Поверх других приложений',
+    tr: 'Diğer uygulamaların üzerinde göster',
+    ptBr: 'Exibir sobre outros aplicativos',
+    zhHans: '在其他应用上层显示',
+    zhHant: '在其他應用上層顯示',
+    ko: '다른 앱 위에 표시',
   );
 
   String get settingsTitle => tr(

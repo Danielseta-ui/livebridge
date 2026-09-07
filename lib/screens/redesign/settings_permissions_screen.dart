@@ -26,6 +26,8 @@ class _SettingsPermissionsScreenState extends State<SettingsPermissionsScreen>
   bool _notificationsGranted = false;
   bool _canPostPromoted = false;
   bool _hidePromotedAccess = false;
+  bool _requiresOverlayDisplay = false;
+  bool _canDrawOverlays = false;
 
   @override
   void initState() {
@@ -64,6 +66,9 @@ class _SettingsPermissionsScreenState extends State<SettingsPermissionsScreen>
           await LiveBridgePlatform.isNotificationPermissionGranted();
       final bool canPostPromoted =
           await LiveBridgePlatform.canPostPromotedNotifications();
+      final bool requiresOverlayDisplay =
+          await LiveBridgePlatform.requiresOverlayDisplay();
+      final bool canDrawOverlays = await LiveBridgePlatform.canDrawOverlays();
       final DeviceInfo deviceInfo = await LiveBridgePlatform.getDeviceInfo();
 
       if (!mounted) {
@@ -75,6 +80,8 @@ class _SettingsPermissionsScreenState extends State<SettingsPermissionsScreen>
         _notificationsGranted = notificationsGranted;
         _canPostPromoted = canPostPromoted;
         _hidePromotedAccess = deviceInfo.shouldHideLiveUpdatesPromotion;
+        _requiresOverlayDisplay = requiresOverlayDisplay;
+        _canDrawOverlays = canDrawOverlays;
       });
     } catch (_) {}
   }
@@ -120,6 +127,15 @@ class _SettingsPermissionsScreenState extends State<SettingsPermissionsScreen>
     _snack(AppStrings.of(context).liveUpdatesUnavailable);
   }
 
+  Future<void> _openOverlaySettings() async {
+    unawaited(LiveBridgeHaptics.openSurface());
+    final bool opened = await LiveBridgePlatform.openOverlaySettings();
+    if (!mounted || opened) {
+      return;
+    }
+    _snack(AppStrings.of(context).overlayUnavailable);
+  }
+
   LbListItemData _buildPermissionItem({
     required String title,
     required bool enabled,
@@ -156,6 +172,14 @@ class _SettingsPermissionsScreenState extends State<SettingsPermissionsScreen>
           }
         },
       ),
+      if (_requiresOverlayDisplay)
+        _buildPermissionItem(
+          title: strings.overlayAccess,
+          enabled: _canDrawOverlays,
+          onTap: () {
+            unawaited(_openOverlaySettings());
+          },
+        ),
       if (!_hidePromotedAccess)
         _buildPermissionItem(
           title: strings.liveUpdatesAccess,

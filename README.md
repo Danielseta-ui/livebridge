@@ -1,6 +1,6 @@
 # LiveBridge
 
-LiveBridge is a Flutter Android app with native Kotlin logic that converts regular notifications into Android Live Updates (Live Activity-like UX on Android 16+)
+LiveBridge is a Flutter Android app with native Kotlin logic that converts regular notifications into a Live Activity-like UX. On Android 16+ it uses native Live Updates; on Android 15 it uses a floating overlay plus an ongoing notification.
 
 ## Download
 
@@ -10,7 +10,7 @@ If you just want to install the app, use the download page:
 
 Before installing the APK:
 
-- Use Android 16 or newer
+- Use Android 15 or newer (Android 16+ for native Live Updates)
 - Disable Play Protect during installation
 
 ## Discussion
@@ -39,7 +39,7 @@ LiveBridge is made for users first. You do not need to build the project yoursel
 
 ## Core features
 
-- Converts progress notifications into Live Updates
+- Converts progress notifications into Live Updates (Android 16+) or a floating overlay (Android 15)
 - Smart status detection (taxi, delivery, food order flows, even weather)
 - OTP code extraction from notifications
 - Real-time island navigation
@@ -64,8 +64,8 @@ LiveBridge is made for users first. You do not need to build the project yoursel
 ## Requirements
 
 - Flutter SDK 3.9+
-- Android SDK configured to compile and target Android 16
-- Android 16+ device
+- Android SDK configured to compile against API 36 and run on Android 15+
+- Android 15+ device (overlay display). Android 16+ for native Live Updates.
 
 ## Quick Start
 
@@ -96,7 +96,8 @@ For stable behavior, the app usually needs:
 
 - Notification Listener access
 - Notification permission for LiveBridge itself
-- Live Updates permission (where required by system/vendor)
+- Display over other apps (Android 15 overlay display)
+- Live Updates permission (Android 16+, where required by system/vendor)
 - Background activity/battery exclusion on some OEM ROMs
 
 ## Known Issues

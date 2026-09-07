@@ -11,6 +11,7 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
+import com.appsfolder.livebridge.liveupdate.display.OverlayDisplayController
 import com.appsfolder.livebridge.liveupdate.networkspeed.NetworkSpeedController
 import kotlin.math.min
 
@@ -58,10 +59,12 @@ class LiveUpdateNotificationListenerService : NotificationListenerService() {
     override fun onCreate() {
         super.onCreate()
         activeInstance = this
+        OverlayDisplayController.attach(applicationContext)
 
         if (!prefs.getConverterEnabled()) {
             LiveUpdateNotifier.clearRuntimeState()
             NotificationManagerCompat.from(applicationContext).cancelAll()
+            OverlayDisplayController.clear()
         }
 
         LiveUpdateNotifier.ensureChannel(applicationContext)
@@ -78,6 +81,7 @@ class LiveUpdateNotificationListenerService : NotificationListenerService() {
         if (!prefs.getConverterEnabled()) {
             LiveUpdateNotifier.clearRuntimeState()
             NotificationManagerCompat.from(applicationContext).cancelAll()
+            OverlayDisplayController.clear()
             scheduleSnapshotSync()
             return
         }

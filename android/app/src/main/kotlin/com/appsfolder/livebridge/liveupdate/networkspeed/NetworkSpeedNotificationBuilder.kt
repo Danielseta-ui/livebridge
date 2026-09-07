@@ -10,6 +10,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.appsfolder.livebridge.MainActivity
 import com.appsfolder.livebridge.R
+import com.appsfolder.livebridge.liveupdate.display.LiveUpdateSdk
 
 class NetworkSpeedNotificationBuilder(
     private val context: Context
@@ -88,7 +89,7 @@ class NetworkSpeedNotificationBuilder(
             .setVisibility(NotificationCompat.VISIBILITY_SECRET)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
 
-        if (shouldPromote) {
+        if (shouldPromote && LiveUpdateSdk.supportsNativeLiveUpdates()) {
             builder
                 .setShortCriticalText(NetworkSpeedFormatter.formatCompact(sample.totalBytesPerSecond))
                 .setRequestPromotedOngoing(true)

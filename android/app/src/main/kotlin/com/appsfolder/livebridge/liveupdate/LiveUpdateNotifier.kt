@@ -36,6 +36,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import com.appsfolder.livebridge.R
+import com.appsfolder.livebridge.liveupdate.display.LiveUpdateSdk
+import com.appsfolder.livebridge.liveupdate.display.OverlayDisplayController
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -259,6 +261,7 @@ object LiveUpdateNotifier {
             userDismissedMirrorKeys.clear()
             programmaticMirrorCancelDeadlines.clear()
         }
+        OverlayDisplayController.clear()
     }
 
     fun cancelCallMirrors(context: Context): Int {
@@ -1844,7 +1847,7 @@ object LiveUpdateNotifier {
         applySmallIcon(context, builder, preferredSmallIcon)
         preferredLargeIcon?.let(builder::setLargeIcon)
 
-        if (requestPromoted) {
+        if (requestPromoted && LiveUpdateSdk.supportsNativeLiveUpdates()) {
             builder.setRequestPromotedOngoing(true)
         }
 
@@ -1883,37 +1886,41 @@ object LiveUpdateNotifier {
         if (hasProgress) {
             if (indeterminate || progressMax <= 0) {
                 builder.setProgress(0, 0, true)
-                builder.setStyle(
-                    NotificationCompat.ProgressStyle()
-                        .setProgressIndeterminate(true)
-                        .setStyledByProgress(true)
-                )
+                if (LiveUpdateSdk.supportsNativeLiveUpdates()) {
+                    builder.setStyle(
+                        NotificationCompat.ProgressStyle()
+                            .setProgressIndeterminate(true)
+                            .setStyledByProgress(true)
+                    )
+                }
             } else {
                 val safeMax = progressMax.coerceAtLeast(1)
                 val safeProgress = progressValue.coerceIn(0, safeMax)
                 val percent = determinateProgressPercent ?: 0
 
                 builder.setProgress(safeMax, safeProgress, false)
-                builder.setStyle(
-                    NotificationCompat.ProgressStyle()
-                        .setProgress(percent)
-                        .setStyledByProgress(true)
-                )
-                val progressShortText = if (preferMediaControls) {
-                    smartShortTextOverride.takeIfMeaningfulMediaPlaybackText()
-                        ?: displayTitle.takeIfMeaningfulMediaPlaybackText()
-                        ?: displayText.takeIfMeaningfulMediaPlaybackText()
-                        ?: appName
-                } else {
-                    smartShortTextOverride ?: "$percent%"
-                }
-                builder.setShortCriticalText(
-                    limitIslandText(
-                        progressShortText,
-                        aospCuttingEnabled,
-                        aospCuttingLength
+                if (LiveUpdateSdk.supportsNativeLiveUpdates()) {
+                    builder.setStyle(
+                        NotificationCompat.ProgressStyle()
+                            .setProgress(percent)
+                            .setStyledByProgress(true)
                     )
-                )
+                    val progressShortText = if (preferMediaControls) {
+                        smartShortTextOverride.takeIfMeaningfulMediaPlaybackText()
+                            ?: displayTitle.takeIfMeaningfulMediaPlaybackText()
+                            ?: displayText.takeIfMeaningfulMediaPlaybackText()
+                            ?: appName
+                    } else {
+                        smartShortTextOverride ?: "$percent%"
+                    }
+                    builder.setShortCriticalText(
+                        limitIslandText(
+                            progressShortText,
+                            aospCuttingEnabled,
+                            aospCuttingLength
+                        )
+                    )
+                }
             }
         } else if (otpOverride != null) {
             builder.setStyle(
@@ -1921,17 +1928,19 @@ object LiveUpdateNotifier {
                     .setBigContentTitle(contentTitle)
                     .bigText(text)
             )
-            builder.setShortCriticalText(
-                limitIslandText(
-                    otpPresentationText ?: otpOverride.code,
-                    aospCuttingEnabled,
-                    aospCuttingLength
+            if (LiveUpdateSdk.supportsNativeLiveUpdates()) {
+                builder.setShortCriticalText(
+                    limitIslandText(
+                        otpPresentationText ?: otpOverride.code,
+                        aospCuttingEnabled,
+                        aospCuttingLength
+                    )
                 )
-            )
+            }
         } else {
             builder.setStyle(NotificationCompat.BigTextStyle().bigText(callMirrorBodyText ?: text))
         }
-        if (callChronometerStart != null && !hasProgress) {
+        if (callChronometerStart != null && !hasProgress && LiveUpdateSdk.supportsNativeLiveUpdates()) {
             builder.setShortCriticalText(
                 limitIslandText(
                     formatMillisecondsAsClock(System.currentTimeMillis() - callChronometerStart),
@@ -1942,13 +1951,15 @@ object LiveUpdateNotifier {
         }
         if (smartShortTextOverride != null && !hasProgress) {
             builder.setContentText(smartShortTextOverride)
-            builder.setShortCriticalText(
-                limitIslandText(
-                    smartShortTextOverride,
-                    aospCuttingEnabled,
-                    aospCuttingLength
+            if (LiveUpdateSdk.supportsNativeLiveUpdates()) {
+                builder.setShortCriticalText(
+                    limitIslandText(
+                        smartShortTextOverride,
+                        aospCuttingEnabled,
+                        aospCuttingLength
+                    )
                 )
-            )
+            }
         }
 
         if (hyperBridgeEnabled) {
@@ -1984,6 +1995,13 @@ object LiveUpdateNotifier {
             )
         }
 
+        OverlayDisplayController.putMirrorExtras(
+            builder = builder,
+            otpCode = otpOverride?.code,
+            progressPercent = determinateProgressPercent,
+            indeterminate = hasProgress && (indeterminate || progressMax <= 0)
+        )
+
         return builder.build()
     }
 
@@ -2012,6 +2030,7 @@ object LiveUpdateNotifier {
     ) {
         try {
             notifyMirroredNotification(
+                context = context,
                 manager = manager,
                 notificationId = notificationId,
                 notification = promotedNotification,
@@ -2039,6 +2058,7 @@ object LiveUpdateNotifier {
                 callChronometerStartWallClockMs = callChronometerStartWallClockMs
             )
             notifyMirroredNotification(
+                context = context,
                 manager = manager,
                 notificationId = notificationId,
                 notification = fallback,
@@ -4599,6 +4619,7 @@ object LiveUpdateNotifier {
     }
 
     private fun notifyMirroredNotification(
+        context: Context,
         manager: NotificationManagerCompat,
         notificationId: Int,
         notification: Notification,
@@ -4609,6 +4630,12 @@ object LiveUpdateNotifier {
             pruneProgrammaticMirrorCancelsLocked(SystemClock.elapsedRealtime())
             mirrorKeysByNotificationId[notificationId] = mirrorKey
         }
+        OverlayDisplayController.upsert(
+            context = context,
+            notificationId = notificationId,
+            mirrorKey = mirrorKey,
+            notification = notification
+        )
     }
 
     private fun cancelMirroredNotification(
@@ -4624,6 +4651,7 @@ object LiveUpdateNotifier {
             }
         }
         manager.cancel(notificationId)
+        OverlayDisplayController.remove(notificationId)
     }
 
     private fun consumeProgrammaticMirrorCancelLocked(

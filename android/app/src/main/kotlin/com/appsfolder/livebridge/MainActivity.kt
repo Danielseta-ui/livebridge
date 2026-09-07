@@ -40,6 +40,8 @@ import com.appsfolder.livebridge.liveupdate.LiveParserDictionary
 import com.appsfolder.livebridge.liveupdate.LiveParserDictionaryLoader
 import com.appsfolder.livebridge.liveupdate.LiveUpdateNotifier
 import com.appsfolder.livebridge.liveupdate.LiveUpdateNotificationListenerService
+import com.appsfolder.livebridge.liveupdate.display.LiveUpdateSdk
+import com.appsfolder.livebridge.liveupdate.display.OverlayDisplayController
 import com.appsfolder.livebridge.liveupdate.networkspeed.NetworkSpeedController
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -67,6 +69,7 @@ class MainActivity : FlutterActivity() {
             handleMethodCall(call, result)
         }
 
+        OverlayDisplayController.attach(applicationContext)
         val prefs = ConverterPrefs(applicationContext)
         initializeKeepAliveDefaultIfNeeded(prefs)
         syncKeepAliveForegroundService(prefs)
@@ -100,6 +103,9 @@ class MainActivity : FlutterActivity() {
             "canPostPromotedNotifications" -> res.success(canPostPromotedNotifications())
             "openPromotedNotificationSettings" -> res.success(openPromotedNotificationSettings())
             "openAppNotificationSettings" -> res.success(openAppNotificationSettings())
+            "requiresOverlayDisplay" -> res.success(LiveUpdateSdk.requiresOverlayDisplay())
+            "canDrawOverlays" -> res.success(OverlayDisplayController.canDrawOverlays(this))
+            "openOverlaySettings" -> res.success(openOverlaySettings())
             "getInstalledApps" -> loadInstalledAppsAsync(res)
             "getDeviceInfo" -> res.success(getDeviceInfo())
             "exportLiveBridgeSettingsBackup" -> res.success(prefs.exportSettingsBackupJson())
@@ -937,8 +943,19 @@ class MainActivity : FlutterActivity() {
         )
     }
 
+    private fun openOverlaySettings(): Boolean {
+        val intent = Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:$packageName")
+        )
+        if (launchSettingsIntent(intent)) {
+            return true
+        }
+        return launchSettingsIntent(appDetailsIntent())
+    }
+
     private fun canPostPromotedNotifications(): Boolean {
-        if (Build.VERSION.SDK_INT < 36) {
+        if (!LiveUpdateSdk.supportsNativeLiveUpdates()) {
             return false
         }
 

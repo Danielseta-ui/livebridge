@@ -56,6 +56,8 @@ class _HomeRedesignScreenState extends State<HomeRedesignScreen>
   bool _notificationsGranted = false;
   bool _canPostPromoted = false;
   bool _hidePromotedAccess = false;
+  bool _requiresOverlayDisplay = false;
+  bool _canDrawOverlays = false;
   bool _updateAvailable = false;
   String _currentAppVersion = 'v1.3.4';
   String _latestReleaseVersion = '';
@@ -260,13 +262,17 @@ class _HomeRedesignScreenState extends State<HomeRedesignScreen>
     }
   }
 
-  bool get _canToggleMaster => _listenerEnabled && _notificationsGranted;
+  bool get _canToggleMaster =>
+      _listenerEnabled &&
+      _notificationsGranted &&
+      (!_requiresOverlayDisplay || _canDrawOverlays);
   bool get _displayMasterSwitchValue =>
       _canToggleMaster && _isLiveBridgeRunning;
 
   bool get _hasPermissionIssues {
     return !(_listenerEnabled &&
         _notificationsGranted &&
+        (!_requiresOverlayDisplay || _canDrawOverlays) &&
         (_hidePromotedAccess || _canPostPromoted));
   }
 
@@ -300,6 +306,10 @@ class _HomeRedesignScreenState extends State<HomeRedesignScreen>
           LiveBridgePlatform.isNotificationPermissionGranted();
       final Future<bool> canPostPromotedFuture =
           LiveBridgePlatform.canPostPromotedNotifications();
+      final Future<bool> requiresOverlayDisplayFuture =
+          LiveBridgePlatform.requiresOverlayDisplay();
+      final Future<bool> canDrawOverlaysFuture =
+          LiveBridgePlatform.canDrawOverlays();
       final Future<bool> converterEnabledFuture =
           LiveBridgePlatform.getConverterEnabled();
       final Future<bool> updateAvailableFuture =
@@ -316,6 +326,8 @@ class _HomeRedesignScreenState extends State<HomeRedesignScreen>
       final bool listenerEnabled = await listenerEnabledFuture;
       final bool notificationsGranted = await notificationsGrantedFuture;
       final bool canPostPromoted = await canPostPromotedFuture;
+      final bool requiresOverlayDisplay = await requiresOverlayDisplayFuture;
+      final bool canDrawOverlays = await canDrawOverlaysFuture;
       final bool converterEnabled = await converterEnabledFuture;
       final bool updateAvailable = await updateAvailableFuture;
       final String latestReleaseVersion = await latestReleaseVersionFuture;
@@ -347,6 +359,8 @@ class _HomeRedesignScreenState extends State<HomeRedesignScreen>
         _notificationsGranted = notificationsGranted;
         _canPostPromoted = canPostPromoted;
         _hidePromotedAccess = deviceInfo.shouldHideLiveUpdatesPromotion;
+        _requiresOverlayDisplay = requiresOverlayDisplay;
+        _canDrawOverlays = canDrawOverlays;
         _isLiveBridgeRunning = converterEnabled;
         _updateAvailable = sanitizedUpdateAvailable;
         _latestReleaseVersion = sanitizedLatestReleaseVersion;
