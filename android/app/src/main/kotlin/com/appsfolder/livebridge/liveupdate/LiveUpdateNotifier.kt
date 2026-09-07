@@ -1772,6 +1772,7 @@ object LiveUpdateNotifier {
         val aospCuttingEnabled = runtimePrefs.getAospCuttingEnabled()
         val aospCuttingLength = runtimePrefs.getAospCuttingLength()
         val hyperBridgeEnabled = runtimePrefs.getHyperBridgeEnabled()
+        val samsungNowBarEnabled = runtimePrefs.getSamsungNowBarEnabled()
         val callChronometerStart = callChronometerStartWallClockMs
             ?.takeIf { callMirrorActive && it > 0L }
             ?.coerceAtMost(System.currentTimeMillis())
@@ -2001,6 +2002,16 @@ object LiveUpdateNotifier {
             progressPercent = determinateProgressPercent,
             indeterminate = hasProgress && (indeterminate || progressMax <= 0)
         )
+
+        if (samsungNowBarEnabled) {
+            SamsungNowBarAdapter.apply(
+                builder = builder,
+                title = contentTitle,
+                content = contentText,
+                progressPercent = determinateProgressPercent,
+                indeterminate = hasProgress && (indeterminate || progressMax <= 0)
+            )
+        }
 
         return builder.build()
     }
