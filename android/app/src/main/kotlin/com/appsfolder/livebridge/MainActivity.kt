@@ -487,6 +487,12 @@ class MainActivity : FlutterActivity() {
                 res.success(true)
             }
 
+            "getSamsungNowBarEnabled" -> res.success(prefs.getSamsungNowBarEnabled())
+            "setSamsungNowBarEnabled" -> {
+                prefs.setSamsungNowBarEnabled(call.argument<Boolean>("value") ?: true)
+                res.success(true)
+            }
+
             "getNotificationDedupEnabled" -> res.success(prefs.getNotificationDedupEnabled())
             "setNotificationDedupEnabled" -> {
                 prefs.setNotificationDedupEnabled(call.argument<Boolean>("value") ?: false)
