@@ -1825,6 +1825,8 @@ object LiveUpdateNotifier {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 builder.setDefaults(Notification.DEFAULT_SOUND)
             }
+        } else if (samsungNowBarEnabled) {
+            builder.setDefaults(0)
         } else {
             builder.setSilent(true).setDefaults(0)
         }
@@ -4638,24 +4640,25 @@ object LiveUpdateNotifier {
         notification: Notification,
         mirrorKey: String
     ) {
-        val posted = if (ConverterPrefs(context).getSamsungNowBarEnabled()) {
+        val useSamsungNowBar = ConverterPrefs(context).getSamsungNowBarEnabled()
+        if (useSamsungNowBar) {
             SamsungNowBarAdapter.decoratePosted(notification)
-            notification
-        } else {
-            notification
+            OverlayDisplayController.clear()
         }
-        manager.notify(notificationId, posted)
-        Log.i(TAG, "Posted mirror id=$notificationId key=$mirrorKey")
+        manager.notify(notificationId, notification)
+        Log.i(TAG, "Posted mirror id=$notificationId key=$mirrorKey nowBar=$useSamsungNowBar")
         synchronized(stateLock) {
             pruneProgrammaticMirrorCancelsLocked(SystemClock.elapsedRealtime())
             mirrorKeysByNotificationId[notificationId] = mirrorKey
         }
-        OverlayDisplayController.upsert(
-            context = context,
-            notificationId = notificationId,
-            mirrorKey = mirrorKey,
-            notification = notification
-        )
+        if (!useSamsungNowBar) {
+            OverlayDisplayController.upsert(
+                context = context,
+                notificationId = notificationId,
+                mirrorKey = mirrorKey,
+                notification = notification
+            )
+        }
     }
 
     private fun cancelMirroredNotification(
