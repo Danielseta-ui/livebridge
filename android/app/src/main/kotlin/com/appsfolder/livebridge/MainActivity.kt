@@ -103,7 +103,9 @@ class MainActivity : FlutterActivity() {
             "canPostPromotedNotifications" -> res.success(canPostPromotedNotifications())
             "openPromotedNotificationSettings" -> res.success(openPromotedNotificationSettings())
             "openAppNotificationSettings" -> res.success(openAppNotificationSettings())
-            "requiresOverlayDisplay" -> res.success(LiveUpdateSdk.requiresOverlayDisplay())
+            "requiresOverlayDisplay" -> res.success(
+                LiveUpdateSdk.requiresOverlayDisplay() && !prefs.getSamsungNowBarEnabled()
+            )
             "canDrawOverlays" -> res.success(OverlayDisplayController.canDrawOverlays(this))
             "openOverlaySettings" -> res.success(openOverlaySettings())
             "getInstalledApps" -> loadInstalledAppsAsync(res)
@@ -489,7 +491,11 @@ class MainActivity : FlutterActivity() {
 
             "getSamsungNowBarEnabled" -> res.success(prefs.getSamsungNowBarEnabled())
             "setSamsungNowBarEnabled" -> {
-                prefs.setSamsungNowBarEnabled(call.argument<Boolean>("value") ?: true)
+                val enabled = call.argument<Boolean>("value") ?: true
+                prefs.setSamsungNowBarEnabled(enabled)
+                if (enabled) {
+                    OverlayDisplayController.clear()
+                }
                 res.success(true)
             }
 
