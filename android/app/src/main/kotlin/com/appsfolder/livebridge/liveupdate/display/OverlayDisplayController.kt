@@ -16,6 +16,7 @@ import android.view.Gravity
 import android.view.WindowManager
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
+import com.appsfolder.livebridge.liveupdate.ConverterPrefs
 import java.util.LinkedHashMap
 
 internal data class OverlayMirrorState(
@@ -81,6 +82,10 @@ internal object OverlayDisplayController {
         notification: Notification
     ) {
         if (!LiveUpdateSdk.requiresOverlayDisplay()) {
+            return
+        }
+        if (ConverterPrefs(context).getSamsungNowBarEnabled()) {
+            clear()
             return
         }
         val appContext = context.applicationContext
