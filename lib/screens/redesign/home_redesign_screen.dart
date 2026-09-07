@@ -903,6 +903,14 @@ class _HomeRedesignScreenState extends State<HomeRedesignScreen>
     final AppStrings strings = AppStrings.of(context);
     final List<LbListItemData> primaryItems = <LbListItemData>[
       LbListItemData(
+        title: strings.bypassTitle,
+        description: strings.bypassDescription,
+        onTap: () {
+          unawaited(LiveBridgeHaptics.selection());
+          unawaited(_openRulesBypassScreen());
+        },
+      ),
+      LbListItemData(
         title: strings.progressTitle,
         onTap: () {
           unawaited(LiveBridgeHaptics.selection());
@@ -945,14 +953,6 @@ class _HomeRedesignScreenState extends State<HomeRedesignScreen>
         onTap: () {
           unawaited(LiveBridgeHaptics.selection());
           unawaited(_openRulesPerAppBehaviorScreen());
-        },
-      ),
-      LbListItemData(
-        title: strings.bypassTitle,
-        description: strings.bypassDescription,
-        onTap: () {
-          unawaited(LiveBridgeHaptics.selection());
-          unawaited(_openRulesBypassScreen());
         },
       ),
     ];
