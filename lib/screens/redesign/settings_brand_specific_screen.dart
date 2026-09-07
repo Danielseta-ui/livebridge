@@ -24,6 +24,7 @@ class _SettingsBrandSpecificScreenState
   static const int _aospCuttingLengthMin = 7;
   static const int _aospCuttingLengthMax = 12;
 
+  bool _samsungNowBarEnabled = true;
   bool _hyperBridgeEnabled = false;
   bool _aospCuttingEnabled = false;
   int _aospCuttingLength = 7;
@@ -39,6 +40,8 @@ class _SettingsBrandSpecificScreenState
 
   Future<void> _loadState() async {
     try {
+      final Future<bool> samsungNowBarFuture =
+          LiveBridgePlatform.getSamsungNowBarEnabled();
       final Future<bool> hyperBridgeFuture =
           LiveBridgePlatform.getHyperBridgeEnabled();
       final Future<bool> aospCuttingFuture =
@@ -46,6 +49,7 @@ class _SettingsBrandSpecificScreenState
       final Future<int> aospCuttingLengthFuture =
           LiveBridgePlatform.getAospCuttingLength();
 
+      final bool samsungNowBarEnabled = await samsungNowBarFuture;
       final bool hyperBridgeEnabled = await hyperBridgeFuture;
       final bool aospCuttingEnabled = await aospCuttingFuture;
       final int aospCuttingLength = await aospCuttingLengthFuture;
@@ -60,6 +64,7 @@ class _SettingsBrandSpecificScreenState
       );
 
       setState(() {
+        _samsungNowBarEnabled = samsungNowBarEnabled;
         _hyperBridgeEnabled = hyperBridgeEnabled;
         _aospCuttingEnabled = aospCuttingEnabled;
         _aospCuttingLength = normalizedLength;
@@ -68,6 +73,14 @@ class _SettingsBrandSpecificScreenState
         );
       });
     } catch (_) {}
+  }
+
+  Future<void> _setSamsungNowBarEnabled(bool value) async {
+    if (value == _samsungNowBarEnabled) {
+      return;
+    }
+    setState(() => _samsungNowBarEnabled = value);
+    await LiveBridgePlatform.setSamsungNowBarEnabled(value);
   }
 
   Future<void> _setHyperBridgeEnabled(bool value) async {
@@ -120,6 +133,40 @@ class _SettingsBrandSpecificScreenState
     return LbDetailScreen(
       title: strings.brandSpecificTitle,
       children: <Widget>[
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: palette.surface,
+            borderRadius: BorderRadius.circular(LbRadius.card),
+          ),
+          child: SizedBox(
+            height: LbSpacing.recentRowHeight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: LbSpacing.md),
+              child: Row(
+                children: <Widget>[
+                  const SizedBox(width: LbSpacing.listTextOnlyInset),
+                  Expanded(
+                    child: LbInfoTitle(
+                      title: strings.samsungNowBarTitle,
+                      description: strings.samsungNowBarDescription,
+                      titleStyle: LbTextStyles.body.copyWith(
+                        color: palette.textPrimary,
+                      ),
+                    ),
+                  ),
+                  LbToggle(
+                    value: _samsungNowBarEnabled,
+                    onChanged: (bool value) {
+                      unawaited(_setSamsungNowBarEnabled(value));
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: LbSpacing.md),
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
