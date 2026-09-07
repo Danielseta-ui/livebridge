@@ -315,7 +315,8 @@ object LiveUpdateNotifier {
         }
 
         return try {
-            if (!passesCoreFilters(context.packageName, sbn)) {
+            val bypassesRules = prefs.shouldBypassAllRulesForPackage(sbn.packageName)
+            if (!passesCoreFilters(context.packageName, sbn, allowGroupSummary = bypassesRules)) {
                 val staleAggregateIds = synchronized(stateLock) {
                     clearAggregateTrackingForSbnKeyLocked(sbn.key)
                 }
@@ -324,6 +325,10 @@ object LiveUpdateNotifier {
                 return notMirroredResult()
             }
             if (isNativeInCallNotification(sbn)) {
+                cancelMirrorsForIgnoredSource(manager, sbn)
+                return notMirroredResult()
+            }
+            if (isLikelyMediaPlaybackNotification(sbn.notification)) {
                 cancelMirrorsForIgnoredSource(manager, sbn)
                 return notMirroredResult()
             }
@@ -344,7 +349,6 @@ object LiveUpdateNotifier {
             }
             val source = sbn.notification
             val mediaPlaybackSmartEnabled = prefs.getSmartMediaPlaybackEnabled()
-            val bypassesRules = prefs.shouldBypassAllRulesForPackage(sbn.packageName)
             val callMirrorSnapshot = if (prefs.getSmartCallsEnabled()) {
                 detectActiveCallMirrorSnapshot(sbn)
             } else {
@@ -1562,7 +1566,8 @@ object LiveUpdateNotifier {
 
     private fun passesCoreFilters(
         appPackageName: String,
-        sbn: StatusBarNotification
+        sbn: StatusBarNotification,
+        allowGroupSummary: Boolean = false
     ): Boolean {
         val packageNameLower = sbn.packageName.lowercase(Locale.ROOT)
         if (appPackageName.isNotEmpty() && sbn.packageName == appPackageName) {
@@ -1578,7 +1583,8 @@ object LiveUpdateNotifier {
             return false
         }
         if (source.flags and Notification.FLAG_GROUP_SUMMARY != 0 &&
-            packageNameLower != TWO_GIS_PACKAGE
+            packageNameLower != TWO_GIS_PACKAGE &&
+            !allowGroupSummary
         ) {
             return false
         }
@@ -4652,7 +4658,6 @@ object LiveUpdateNotifier {
         val useSamsungNowBar = ConverterPrefs(context).getSamsungNowBarEnabled()
         if (useSamsungNowBar) {
             SamsungNowBarAdapter.decoratePosted(notification)
-            OverlayDisplayController.clear()
         }
         manager.notify(notificationId, notification)
         Log.i(TAG, "Posted mirror id=$notificationId key=$mirrorKey nowBar=$useSamsungNowBar")
@@ -4660,14 +4665,12 @@ object LiveUpdateNotifier {
             pruneProgrammaticMirrorCancelsLocked(SystemClock.elapsedRealtime())
             mirrorKeysByNotificationId[notificationId] = mirrorKey
         }
-        if (!useSamsungNowBar) {
-            OverlayDisplayController.upsert(
-                context = context,
-                notificationId = notificationId,
-                mirrorKey = mirrorKey,
-                notification = notification
-            )
-        }
+        OverlayDisplayController.upsert(
+            context = context,
+            notificationId = notificationId,
+            mirrorKey = mirrorKey,
+            notification = notification
+        )
     }
 
     private fun cancelMirroredNotification(
