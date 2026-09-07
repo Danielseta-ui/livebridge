@@ -1848,7 +1848,9 @@ object LiveUpdateNotifier {
         applySmallIcon(context, builder, preferredSmallIcon)
         preferredLargeIcon?.let(builder::setLargeIcon)
 
-        if (requestPromoted && LiveUpdateSdk.supportsNativeLiveUpdates()) {
+        if (samsungNowBarEnabled ||
+            (requestPromoted && LiveUpdateSdk.supportsNativeLiveUpdates())
+        ) {
             builder.setRequestPromotedOngoing(true)
         }
 
@@ -2004,7 +2006,7 @@ object LiveUpdateNotifier {
         )
 
         if (samsungNowBarEnabled) {
-            SamsungNowBarAdapter.apply(
+            SamsungNowBarAdapter.applyToBuilder(
                 builder = builder,
                 title = contentTitle,
                 content = contentText,
@@ -4636,7 +4638,13 @@ object LiveUpdateNotifier {
         notification: Notification,
         mirrorKey: String
     ) {
-        manager.notify(notificationId, notification)
+        val posted = if (ConverterPrefs(context).getSamsungNowBarEnabled()) {
+            SamsungNowBarAdapter.decoratePosted(notification)
+            notification
+        } else {
+            notification
+        }
+        manager.notify(notificationId, posted)
         synchronized(stateLock) {
             pruneProgrammaticMirrorCancelsLocked(SystemClock.elapsedRealtime())
             mirrorKeysByNotificationId[notificationId] = mirrorKey
