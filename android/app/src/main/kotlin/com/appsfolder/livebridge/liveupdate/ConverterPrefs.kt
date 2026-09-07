@@ -306,6 +306,14 @@ class ConverterPrefs(context: Context) {
         prefs.edit().putBoolean(KEY_HYPERBRIDGE_ENABLED, value).apply()
     }
 
+    fun getSamsungNowBarEnabled(): Boolean {
+        return prefs.getBoolean(KEY_SAMSUNG_NOW_BAR_ENABLED, true)
+    }
+
+    fun setSamsungNowBarEnabled(value: Boolean) {
+        prefs.edit().putBoolean(KEY_SAMSUNG_NOW_BAR_ENABLED, value).apply()
+    }
+
     fun getNotificationDedupEnabled(): Boolean {
         return prefs.getBoolean(KEY_NOTIFICATION_DEDUP_ENABLED, false)
     }
@@ -812,6 +820,7 @@ class ConverterPrefs(context: Context) {
                 getAnimatedIslandUpdateFrequencyMs()
             )
             .put("hyper_bridge_enabled", getHyperBridgeEnabled())
+            .put("samsung_now_bar_enabled", getSamsungNowBarEnabled())
             .put("notification_dedup_enabled", getNotificationDedupEnabled())
             .put("notification_dedup_mode", getNotificationDedupMode())
             .put("otp_detection_enabled", getOtpDetectionEnabled())
@@ -914,6 +923,7 @@ class ConverterPrefs(context: Context) {
             ?.let(::setAnimatedIslandUpdateFrequencyMs)
         bool(settings, "hyper_bridge_enabled")?.let(::setHyperBridgeEnabled)
         bool(settings, "hyperbridge_enabled")?.let(::setHyperBridgeEnabled)
+        bool(settings, "samsung_now_bar_enabled")?.let(::setSamsungNowBarEnabled)
         bool(settings, "notification_dedup_enabled")?.let(::setNotificationDedupEnabled)
         string(settings, "notification_dedup_mode")?.let(::setNotificationDedupMode)
         bool(settings, "otp_detection_enabled")?.let(::setOtpDetectionEnabled)
@@ -1148,6 +1158,7 @@ class ConverterPrefs(context: Context) {
         private const val KEY_ANIMATED_ISLAND_UPDATE_FREQUENCY_MS =
             "animated_island_update_frequency_ms"
         private const val KEY_HYPERBRIDGE_ENABLED = "hyperbridge_enabled"
+        private const val KEY_SAMSUNG_NOW_BAR_ENABLED = "samsung_now_bar_enabled"
         private const val KEY_NOTIFICATION_DEDUP_ENABLED = "notification_dedup_enabled"
         private const val KEY_NOTIFICATION_DEDUP_MODE = "notification_dedup_mode"
         private const val KEY_NOTIFICATION_DEDUP_PACKAGE_RULES = "notification_dedup_package_rules"
