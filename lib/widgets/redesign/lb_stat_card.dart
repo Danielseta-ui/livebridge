@@ -40,35 +40,30 @@ class LbStatCard extends StatelessWidget {
               color: isWarning ? palette.warningSurface : palette.surface,
               borderRadius: BorderRadius.circular(LbRadius.smallCard),
             ),
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  LbIcon(
-                    symbol: icon,
-                    size: LbSpacing.statCardIcon,
-                    color: iconColor,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                LbIcon(
+                  symbol: icon,
+                  size: LbSpacing.statCardIcon,
+                  color: iconColor,
+                ),
+                const SizedBox(height: LbSpacing.statCardIconGap),
+                _LbStatCardText(
+                  text: title,
+                  style: LbTextStyles.statTitle.copyWith(
+                    color: palette.textPrimary,
                   ),
-                  const SizedBox(height: LbSpacing.statCardIconGap),
-                  _LbStatCardText(
-                    text: title,
-                    style: LbTextStyles.statTitle.copyWith(
-                      color: palette.textPrimary,
-                    ),
+                ),
+                const SizedBox(height: 2),
+                _LbStatCardText(
+                  text: subtitle,
+                  style: LbTextStyles.statCaption.copyWith(
+                    color: subtitleColor,
                   ),
-                  const SizedBox(height: 2),
-                  Transform.translate(
-                    offset: const Offset(0, -2),
-                    child: _LbStatCardText(
-                      text: subtitle,
-                      style: LbTextStyles.statCaption.copyWith(
-                        color: subtitleColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
